@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Night 🎈</title>
+
+<style>
+body{
+  background:radial-gradient(circle at top,#200000,#000);
+  color:#fff;
+  font-family:'Courier New',monospace;
+  height:100vh;
+  margin:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+/* Blood drip */
+.blood{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:140px;
+  background:linear-gradient(crimson,darkred);
+  clip-path:polygon(0 0,100% 0,100% 40%,95% 65%,90% 40%,85% 75%,80% 45%,75% 80%,70% 50%,65% 85%,60% 55%,55% 90%,50% 60%,45% 85%,40% 55%,35% 80%,30% 45%,25% 75%,20% 40%,15% 65%,10% 45%,5% 65%,0 40%);
+  animation:drip 4s infinite alternate;
+  z-index:1;
+}
+@keyframes drip{from{height:90px}to{height:160px}}
+
+/* Balloons */
+.balloon{
+  position:absolute;
+  bottom:-150px;
+  width:60px;height:80px;
+  background:crimson;
+  border-radius:50%;
+  animation:float 6s linear infinite;
+  box-shadow:0 0 20px crimson;
+  opacity:.85;
+  z-index:0;
+}
+.balloon::after{
+  content:'';
+  position:absolute;
+  bottom:-25px;left:50%;
+  width:2px;height:25px;
+  background:#aaa;
+}
+@keyframes float{
+  from{transform:translateY(0)}
+  to{transform:translateY(-120vh)}
+}
+
+/* Main box */
+.container{
+  background:rgba(0,0,0,.9);
+  padding:30px;
+  border:2px solid crimson;
+  border-radius:12px;
+  box-shadow:0 0 40px crimson;
+  width:min(90vw,380px);
+  z-index:2;
+  animation:pulse 2s infinite alternate;
+}
+@keyframes pulse{
+  from{box-shadow:0 0 20px crimson}
+  to{box-shadow:0 0 45px crimson}
+}
+
+h1{color:crimson;letter-spacing:3px}
+
+.option{
+  background:#111;
+  border:1px solid crimson;
+  padding:12px;
+  margin:15px 0;
+  border-radius:8px;
+  cursor:pointer;
+}
+.option:hover{background:crimson;color:black}
+input{pointer-events:none;margin-right:10px}
+
+.hidden{display:none}
+
+/* Popup */
+.popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.97);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:10;
+}
+.popup-box{
+  background:black;
+  border:2px solid crimson;
+  padding:35px;
+  border-radius:10px;
+  box-shadow:0 0 50px crimson;
+  animation:shake .15s infinite;
+  position:relative;
+}
+@keyframes shake{
+  0%{transform:translate(2px,-2px)}
+  25%{transform:translate(-2px,2px)}
+  50%{transform:translate(2px,2px)}
+  75%{transform:translate(-2px,-2px)}
+  100%{transform:translate(2px,-2px)}
+}
+
+.fake-close{
+  position:absolute;
+  top:8px;right:12px;
+  color:crimson;
+  font-weight:bold;
+  animation:blink .4s infinite alternate;
+}
+@keyframes blink{from{opacity:.3}to{opacity:1}}
+
+#name{
+  color:crimson;
+  letter-spacing:4px;
+  animation:glitch .6s infinite;
+}
+@keyframes glitch{
+  0%{text-shadow:2px 0 red,-2px 0 darkred}
+  50%{text-shadow:-2px -2px crimson,2px 2px black}
+  100%{text-shadow:0 0 crimson}
+}
+
+#countdown{font-size:28px;color:crimson}
+
+button{
+  margin-top:20px;
+  padding:10px 20px;
+  background:crimson;
+  border:none;
+  color:black;
+  font-weight:bold;
+  border-radius:5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="blood"></div>
+
+<div class="balloon" style="left:10%;animation-duration:5s"></div>
+<div class="balloon" style="left:35%;animation-duration:6s"></div>
+<div class="balloon" style="left:60%;animation-duration:4.5s"></div>
+<div class="balloon" style="left:80%;animation-duration:5.5s"></div>
+
+<div class="container">
+  <h1>🎈 MOVIE NIGHT 🎈</h1>
+  <p>Pick one. You won’t escape.</p>
+
+  <div class="option" onclick="pick(1)">
+    <input type="checkbox" id="o1"> Option 1
+  </div>
+  <div class="option" onclick="pick(2)">
+    <input type="checkbox" id="o2"> Option 2
+  </div>
+  <div class="option" onclick="pick(3)">
+    <input type="checkbox" id="o3"> Option 3
+  </div>
+</div>
+
+<div class="popup hidden" id="popup">
+  <div class="popup-box">
+    <div class="fake-close">✖</div>
+    <h2 id="name"></h2>
+    <h2>🎈 YOU ALL FLOAT DOWN HERE 🎈</h2>
+    <p><b>IT: Welcome to Derry</b></p>
+    <div id="countdown">5</div>
+    <button onclick="openMovie()">WATCH</button>
+  </div>
+</div>
+
+<audio id="scream" src="https://www.fesliyanstudios.com/play-mp3/4385"></audio>
+<audio id="whisper" src="https://www.fesliyanstudios.com/play-mp3/6709"></audio>
+
+<script>
+let c=0;
+
+function pick(n){
+  const b=document.getElementById("o"+n);
+  if(!b.checked){b.checked=true;c++;}
+  if(c===3)start();
+}
+
+function start(){
+  popup.classList.remove("hidden");
+  scream.play();
+  setTimeout(()=>whisper.play(),1200);
+  typeName();
+
+  let t=5;
+  setInterval(()=>{
+    t--;
+    countdown.textContent=t;
+    if(t===0)openMovie();
+  },1000);
+}
+
+function typeName(){
+  const name="AARYAN";
+  let i=0;
+  const el=document.getElementById("name");
+  const int=setInterval(()=>{
+    el.textContent+=name[i];
+    i++;
+    if(i===name.length)clearInterval(int);
+  },250);
+}
+
+function openMovie(){
+  window.open("https://www.imdb.com/title/tt26743210/","_blank");
+}
+</script>
+
+</body>
+</html>
